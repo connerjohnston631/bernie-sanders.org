@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bernie-sanders.org</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrapMin.css">
+
+
+    <script src="./data/memory.js" type="text/javascript">
+    </script>
+
+
+    <script type="text/javascript">
+
+        var current_candidate = 'Bernie_Sanders';
+        var color_list = ['hotpink', 'deeppink', 'red', 'orangered', 'orange', 'yellow', 'greenyellow', 'yellowgreen', 'green', 'deepskyblue', 'blue', 'indigo', 'purple', 'saddlebrown', 'black', 'gray', 'white']
+        var current_image = nextRandomPicture();
+        var trump_quote = '';
+        trump_quote = nextRandomTrumpQuote();
+        var fixed_text = false;
+
+        function randomListElement(list){
+            return list[Math.floor(Math.random()*list.length)];
+        }
+
+        function uniqueRandomListElement(list, elem){
+            var next_elem = randomListElement(list);
+            while (next_elem == elem){
+                next_elem = randomListElement(list);
+            }
+            return next_elem;
+        }
+
+        function nextRandomCandidate(){
+            return uniqueRandomListElement(Object.keys(candidata), current_candidate);
+        }
+
+        function nextRandomPicture(){
+            return uniqueRandomListElement(candidata[current_candidate]['images'], current_image);
+        }
+
+        function nextRandomTrumpQuote(){
+            return uniqueRandomListElement(candidata['Donald_Trump']['quotes'], trump_quote);
+        }
+
+        function candidateTextControl(){
+            return current_candidate == 'Donald_Trump';
+        }
+
+        function updateText(id_1, id_2){
+
+            if (fixed_text){
+                if (document.getElementById('text_1').value.length == 0 && document.getElementById('text_2').value.length == 0){
+                    trump_quote = nextRandomTrumpQuote();
+                }
+                if (id_2 == 'top-caption'){
+                    document.getElementById(id_2).innerText = trump_quote['top'].substring(0, document.getElementById(id_1).value.length);
+                }
+                else {
+                    document.getElementById(id_2).innerText = trump_quote['bottom'].substring(0, document.getElementById(id_1).value.length);
+                }
+            }
+            else{
+                document.getElementById(id_2).innerText = document.getElementById(id_1).value;
+            }
+        }
+
+        function updateCurrentColor(color) {
+            document.getElementById('current-color').style.backgroundColor = color;
+        }
+
+        function refreshCanvasAction(){
+            var canvas = document.querySelector('#paint');
+            var ctx = canvas.getContext('2d');
+            var sketch = document.querySelector('#sketch');
+            var sketch_style = getComputedStyle(sketch);
+            canvas.width = parseInt(sketch_style.getPropertyValue('width'));
+            canvas.height = parseInt(sketch_style.getPropertyValue('height'));
+
+            var mouse = {x: 0, y: 0};
+            var last_mouse = {x: 0, y: 0};
+
+            canvas.addEventListener('mousemove', function(e) {
+                last_mouse.x = mouse.x;
+                last_mouse.y = mouse.y;
+                mouse.x = e.pageX - (document.getElementById('sketch').offsetLeft + document.getElementById('left-ad').offsetWidth + 10);
+                mouse.y = e.pageY - document.getElementById('sketch').offsetTop;
+
+            }, false);
+
+            ctx.lineWidth = 5;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'blue';
+
+            canvas.addEventListener('mousedown', function() {
+                canvas.addEventListener('mousemove', onPaint, false);
+            }, false);
+
+            canvas.addEventListener('mouseup', function() {
+                canvas.removeEventListener('mousemove', onPaint, false);
+            }, false);
+
+            var onPaint = function() {
+                ctx.strokeStyle = document.getElementById('current-color').style.backgroundColor;
+                ctx.beginPath();
+                ctx.moveTo(last_mouse.x, last_mouse.y);
+                ctx.lineTo(mouse.x, mouse.y);
+                ctx.closePath();
+                ctx.stroke();
+            };
+        }
+
+        function switchCandidateAction(){
+            current_candidate = nextRandomCandidate();
+            if (current_candidate == 'Donald_Trump'){
+                fixed_text = true;
+            }
+            else{
+                fixed_text = false;
+            }
+            current_image = nextRandomPicture();
+            refreshImageAction(current_image);
+        }
+
+        function refreshImageAction(source){
+            var picture = document.getElementById('picture');
+            picture.style.backgroundImage = "url(" + source + ")";
+            picture.style.backgroundSize = "cover";
+            picture.style.backgroundRepeat = "no-repeat";
+            picture.style.backgroundImage.overflow = "hidden";
+            picture.style.backgroundImage.align = "center";
+        }
+
+        function setUpColors(){
+            var docElem = document.getElementById('color-table-row');
+            for (var index in color_list){
+                docElem.innerHTML += '<td style=\"background-color: ' + color_list[index] + '\" onclick=\"updateCurrentColor(this.style.backgroundColor)\"/>';
+            }
+        }
+
+    </script>
+
+
+</head>
+    <body>
+        <script type="text/javascript" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <div class="container" id="main-container" style="margin:0; width:100%; height: 600px">
+
+            <div class="col-lg-3" id="left-ad">
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- bernie-sanders.org_1 -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:300px;height:600px"
+                     data-ad-client="ca-pub-2570134757307507"
+                     data-ad-slot="2077951074"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+            <div class="col-lg-6">
+                <div id="full-meme" style="width: 600px; margin: 0 auto">
+                    <div id="sketch" style="width: 600px; height: 600px; position: relative">
+                        <canvas id="picture" style="width: 100%; height: 100%; position: absolute"></canvas>
+                        <canvas id="captions" style="width: 100%; height: 100%; position: absolute"></canvas>
+                        <canvas id="paint" style="width: 100%; height: 100%; position: absolute"></canvas>
+
+                        <h1 id="top-caption" style="width: 100%; position: absolute; top: 0; font-family: Impact, sans-serif; color: #fff; text-shadow: #000 0px 0px 6px; text-transform: uppercase; text-align: center; font-size: 40px;">top meme</h1>
+                        <h1 id="bottom-caption" style="width: 100%; position: absolute; bottom: 0; font-family: Impact, sans-serif; color: #fff; text-shadow: #000 0px 0px 6px; text-transform: uppercase; text-align: center; font-size: 40px;">bottom meme</h1>
+                    </div>
+                    <div>
+                        <input id="text_1" type="text" name="top meme string" onkeyup="updateText('text_1', 'top-caption', false)" style="width: 500px; margin: 0 auto"/>
+                    </div>
+                    <div>
+                        <input id="text_2" type="text" name="bottom meme string" onkeyup="updateText('text_2', 'bottom-caption', true)" style="width: 500px; margin: 0 auto"/>
+                    </div>
+                    <table style="width: 600px; height: 30px; margin: 0 auto">
+                        <tr height="30px">
+                            <td height="30px" width="450px">
+                                <table height="30px" width="450px">
+                                    <tr id="color-table-row">
+                                        <script type="text/javascript">
+                                            setUpColors();
+                                        </script>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td id="current-color" style="background-color: blue; border-radius: 50%"></td>
+                        </tr>
+                    </table>
+                    <button onclick="refreshCanvasAction()">clean canvas</button>
+                    <button onclick="refreshImageAction(nextRandomPicture())">switch image</button>
+                    <button onclick="switchCandidateAction()">switch candidate</button>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- bernie-sanders.org_2 -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:300px;height:600px"
+                     data-ad-client="ca-pub-2570134757307507"
+                     data-ad-slot="3554684273"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
+        </div>
+        <script type="text/javascript">
+            refreshImageAction(current_image);
+            refreshCanvasAction();
+        </script>
+  </body>
+</html>
